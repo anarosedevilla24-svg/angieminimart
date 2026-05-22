@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ 'Sign up' if mode == 'signup' else 'Login' }} - Angie's Mini Mart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rose: #eb6f86;
+      --rose-dark: #cf526c;
+      --rose-soft: #fff0f3;
+      --cream: #fffaf6;
+      --ink: #2b1f26;
+      --muted: #7c6670;
+      --line: rgba(207, 82, 108, .18);
+      --shadow: 0 28px 80px rgba(85, 35, 53, .22);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Poppins", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 12%, rgba(255, 255, 255, .72), transparent 24rem),
+        linear-gradient(135deg, #f97d91 0%, #ffd0bd 48%, #fff6ea 100%);
+      display: grid;
+      place-items: center;
+      padding: 32px;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .auth-shell {
+      width: min(1080px, 100%);
+      min-height: 640px;
+      display: grid;
+      grid-template-columns: 1.04fr .96fr;
+      overflow: hidden;
+      border-radius: 28px;
+      background: rgba(255, 250, 246, .92);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, .62);
+    }
+
+    .brand-panel {
+      position: relative;
+      isolation: isolate;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 640px;
+      padding: 42px;
+      color: #fff;
+      background: #c95067;
+      overflow: hidden;
+    }
+
+    .brand-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        linear-gradient(180deg, rgba(37, 18, 27, .14), rgba(37, 18, 27, .55)),
+        url("{{ url_for('assets', filename='angie.png') }}") center / cover no-repeat;
+      transform: scale(1.03);
+      transition: transform .65s ease;
+    }
+
+    .brand-panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(135deg, rgba(235, 111, 134, .72), rgba(103, 50, 67, .24)),
+        linear-gradient(0deg, rgba(35, 18, 25, .36), transparent 48%);
+    }
+
+    .auth-shell:hover .brand-panel::before {
+      transform: scale(1.08);
+    }
+
+    .brand-mark,
+    .stat {
+      background: rgba(255, 255, 255, .15);
+      border: 1px solid rgba(255, 255, 255, .24);
+      backdrop-filter: blur(12px);
+    }
+
+    .brand-mark {
+      width: fit-content;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .brand-copy {
+      max-width: 500px;
+    }
+
+    .brand-copy h1 {
+      font-size: clamp(40px, 5vw, 66px);
+      line-height: 1.02;
+      letter-spacing: 0;
+      margin-bottom: 18px;
+    }
+
+    .brand-copy p {
+      max-width: 430px;
+      font-size: 16px;
+      line-height: 1.75;
+      color: rgba(255, 255, 255, .88);
+    }
+
+    .brand-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      padding: 16px;
+      border-radius: 18px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1;
+      margin-bottom: 7px;
+    }
+
+    .stat span {
+      color: rgba(255, 255, 255, .76);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .form-panel {
+      min-height: 640px;
+      padding: 46px;
+      display: flex;
+      align-items: center;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, .72), rgba(255, 240, 243, .42)),
+        var(--cream);
+    }
+
+    .form-card {
+      width: 100%;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--rose-dark);
+      background: var(--rose-soft);
+      border: 1px solid var(--line);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--rose);
+      box-shadow: 0 0 0 5px rgba(235, 111, 134, .14);
+    }
+
+    .form-heading {
+      margin-bottom: 28px;
+    }
+
+    .form-heading h2 {
+      font-size: clamp(30px, 4vw, 44px);
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+
+    .form-heading p {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 5px;
+      margin-bottom: 24px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .tab {
+      min-height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 700;
+      transition: color .18s ease, background .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    .tab:hover {
+      color: var(--rose-dark);
+      background: var(--rose-soft);
+    }
+
+    .tab.active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+      box-shadow: 0 12px 24px rgba(207, 82, 108, .24);
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    label {
+      color: #4b3942;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .link-button {
+      border: 0;
+      background: transparent;
+      color: var(--rose-dark);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      transition: color .18s ease;
+    }
+
+    .link-button:hover {
+      color: var(--ink);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap span {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--rose-dark);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    input {
+      width: 100%;
+      height: 52px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      outline: 0;
+      color: var(--ink);
+      background: #fff;
+      padding: 0 46px;
+      box-shadow: 0 10px 24px rgba(91, 54, 67, .05);
+      transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    input::placeholder {
+      color: #b69ba5;
+    }
+
+    input:hover {
+      border-color: rgba(207, 82, 108, .34);
+    }
+
+    input:focus {
+      border-color: var(--rose);
+      box-shadow: 0 0 0 5px rgba(235, 111, 134, .14), 0 14px 30px rgba(91, 54, 67, .08);
+      transform: translateY(-1px);
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      min-width: 48px;
+      height: 32px;
+      border: 0;
+      border-radius: 10px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      transition: background .18s ease, color .18s ease;
+    }
+
+    .password-toggle:hover {
+      color: var(--rose-dark);
+      background: var(--rose-soft);
+    }
+
+    .primary-action {
+      width: 100%;
+      min-height: 54px;
+      margin-top: 8px;
+      border: 0;
+      border-radius: 16px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+      cursor: pointer;
+      font-weight: 800;
+      box-shadow: 0 18px 34px rgba(207, 82, 108, .28);
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+    }
+
+    .primary-action:hover {
+      transform: translateY(-2px);
+      filter: saturate(1.08);
+      box-shadow: 0 22px 44px rgba(207, 82, 108, .34);
+    }
+
+    .primary-action:active {
+      transform: translateY(0);
+    }
+
+    .fine-print {
+      margin-top: 18px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .fine-print a {
+      color: var(--rose-dark);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .fine-print a:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .flash {
+      margin-bottom: 18px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      color: var(--rose-dark);
+      background: var(--rose-soft);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: min(360px, calc(100vw - 48px));
+      padding: 16px 18px;
+      border-radius: 18px;
+      color: #422c36;
+      background: rgba(255, 255, 255, .94);
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 40px rgba(66, 44, 54, .2);
+      opacity: 0;
+      transform: translateY(16px);
+      pointer-events: none;
+      transition: opacity .22s ease, transform .22s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 920px) {
+      body {
+        padding: 18px;
+      }
+
+      .auth-shell {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .brand-panel {
+        min-height: 360px;
+        padding: 30px;
+      }
+
+      .form-panel {
+        min-height: auto;
+        padding: 34px 28px 38px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      body {
+        padding: 0;
+        place-items: stretch;
+      }
+
+      .auth-shell {
+        min-height: 100vh;
+        border-radius: 0;
+      }
+
+      .brand-panel {
+        min-height: 320px;
+        padding: 24px;
+      }
+
+      .brand-copy p {
+        font-size: 14px;
+      }
+
+      .brand-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .stat {
+        padding: 12px 14px;
+      }
+
+      .form-panel {
+        padding: 28px 20px 34px;
+      }
+
+      .field-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="auth-shell" aria-label="Angie's Mini Mart account access">
+    <section class="brand-panel">
+      <div class="brand-mark">Angie's Mini Mart</div>
+
+      <div class="brand-copy">
+        <h1>Welcome back to your store hub.</h1>
+        <p>Manage products, orders, sales, and reports with a smoother dashboard experience made for everyday shop work.</p>
+      </div>
+
+      <div class="brand-stats" aria-label="Store highlights">
+        <div class="stat">
+          <strong>24/7</strong>
+          <span>Store access</span>
+        </div>
+        <div class="stat">
+          <strong>Fast</strong>
+          <span>Inventory flow</span>
+        </div>
+        <div class="stat">
+          <strong>Clean</strong>
+          <span>Sales records</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-panel">
+      <div class="form-card">
+        <div class="eyebrow">Secure access</div>
+        <div class="form-heading">
+          <h2>{{ 'Create account' if mode == 'signup' else 'Login' }}</h2>
+          <p>{{ 'Set up your store account and start managing your mini mart.' if mode == 'signup' else "Enter your account details to continue to Angie's Mini Mart." }}</p>
+        </div>
+
+        <nav class="tabs" aria-label="Account forms">
+          <a class="tab {{ 'active' if mode == 'login' }}" href="{{ url_for('login') }}">Login</a>
+          <a class="tab {{ 'active' if mode == 'signup' }}" href="{{ url_for('signup') }}">Sign up</a>
+        </nav>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endwith %}
+
+        <form method="post" action="{{ url_for('signup') if mode == 'signup' else url_for('login') }}">
+          <div class="field">
+            <label for="username">Username</label>
+            <div class="input-wrap">
+              <span aria-hidden="true">@</span>
+              <input id="username" name="username" type="text" autocomplete="username" placeholder="Enter your username" required>
+            </div>
+          </div>
+
+          {% if mode == 'signup' %}
+            <div class="field">
+              <label for="email">Email</label>
+              <div class="input-wrap">
+                <span aria-hidden="true">+</span>
+                <input id="email" name="email" type="email" autocomplete="email" placeholder="Enter your email" required>
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="field">
+            <div class="field-row">
+              <label for="password">Password</label>
+              {% if mode == 'login' %}
+                <button class="link-button" type="button" data-toast="Password recovery can be connected to your backend next.">Forgot password?</button>
+              {% endif %}
+            </div>
+            <div class="input-wrap">
+              <span aria-hidden="true">*</span>
+              <input id="password" name="password" type="password" autocomplete="{{ 'new-password' if mode == 'signup' else 'current-password' }}" placeholder="Enter your password" required>
+              <button class="password-toggle" type="button" aria-label="Show password" data-toggle="password">Show</button>
+            </div>
+          </div>
+
+          <button class="primary-action" type="submit">{{ 'Create account' if mode == 'signup' else 'Login' }}</button>
+        </form>
+
+        <p class="fine-print">
+          {% if mode == 'signup' %}
+            Already have an account? <a href="{{ url_for('login') }}">Login instead</a>
+          {% else %}
+            New to Angie? <a href="{{ url_for('signup') }}">Create an account</a>
+          {% endif %}
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const toast = document.querySelector("#toast");
+    let toastTimer;
+
+    function showToast(message) {
+      clearTimeout(toastTimer);
+      toast.textContent = message;
+      toast.classList.add("show");
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
+    }
+
+    document.querySelectorAll("[data-toggle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const input = document.querySelector(`#${button.dataset.toggle}`);
+        const show = input.type === "password";
+        input.type = show ? "text" : "password";
+        button.textContent = show ? "Hide" : "Show";
+        button.setAttribute("aria-label", show ? "Hide password" : "Show password");
+      });
+    });
+
+    document.querySelectorAll("[data-toast]").forEach((button) => {
+      button.addEventListener("click", () => showToast(button.dataset.toast));
+    });
+
+    document.querySelector("form").addEventListener("submit", (event) => {
+      const invalid = [...event.currentTarget.elements].find((element) => element.required && !element.value.trim());
+      if (invalid) {
+        event.preventDefault();
+        invalid.focus();
+        showToast("Please complete the required fields.");
+      }
+    });
+  </script>
+</body>
+</html>

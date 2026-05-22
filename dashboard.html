@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block subtitle %}Quick overview of payments, history, and reports.{% endblock %}
+{% block content %}
+<section class="stats-grid">
+  <article class="stat-card"><span>PHP</span><p>Total Sales</p><strong>{{ stats.total_sales|money }}</strong><small>Completed payments</small></article>
+  <article class="stat-card"><span>PAY</span><p>Total Orders</p><strong>{{ stats.total_orders }}</strong><small>Saved payment records</small></article>
+  <article class="stat-card"><span>OK</span><p>Completed</p><strong>{{ stats.completed_orders }}</strong><small>Finished transactions</small></article>
+  <article class="stat-card"><span>LOW</span><p>Low Stock</p><strong>{{ stats.low_stock }}</strong><small>For admin reference</small></article>
+</section>
+
+<section class="grid-two">
+  <article class="card chart-card">
+    <div class="card-head"><h2>Sales Overview</h2><button>Weekly</button></div>
+    <div class="line-chart"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </article>
+  <article class="card">
+    <div class="card-head"><h2>Quick Actions</h2></div>
+    <div class="quick-actions">
+      <a class="quick-card" href="{{ url_for('payment') }}"><b>Record Payment</b><span>Save a new payment with any method.</span></a>
+      <a class="quick-card" href="{{ url_for('history') }}"><b>View History</b><span>Check receipts and references.</span></a>
+      <a class="quick-card" href="{{ url_for('report') }}"><b>Open Report</b><span>Generate and review reports.</span></a>
+    </div>
+  </article>
+</section>
+
+<section class="card">
+  <div class="card-head"><h2>Recent Payments</h2><a href="{{ url_for('history') }}">View All</a></div>
+  <table>
+    <thead><tr><th>Transaction</th><th>Customer</th><th>Method</th><th>Amount</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for t in recent_transactions %}
+        <tr>
+          <td>{{ t.transaction_no }}</td>
+          <td>{{ t.customer_name }}</td>
+          <td>{{ t.payment_method }}</td>
+          <td>{{ t.amount|money }}</td>
+          <td><span class="status">{{ t.status }}</span></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

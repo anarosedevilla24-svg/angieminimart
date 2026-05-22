@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Payment{% endblock %}
+{% block subtitle %}Create paid records or pending bills with complete product and payment details.{% endblock %}
+{% block content %}
+<section class="payment-hero card">
+  <div>
+    <span class="section-kicker">Payment Details</span>
+    <h2>New Payment Record</h2>
+    <p>Enter the customer, product or service, payment type, price, and quantity.</p>
+  </div>
+  <div class="export-actions">
+    <a class="small ghost-action" href="{{ url_for('payment_export_pdf') }}">PDF File</a>
+    <a class="small ghost-action" href="{{ url_for('payment_export_excel') }}">Excel File</a>
+    <button class="small ghost-action" type="button" onclick="window.print()">Print Page</button>
+  </div>
+</section>
+
+<section class="card payment-detail-window">
+  <form class="payment-detail-form" action="{{ url_for('create_payment') }}" method="post" data-payment-form>
+    <label>Customer Name
+      <input name="customer_name" placeholder="Walk-in Customer" value="Walk-in Customer" required>
+    </label>
+    <label>Product or Service Name
+      <input name="paid_for" placeholder="Example: Printing service, notebook, monthly bill" required>
+    </label>
+    <label>Type of Payment
+      <input name="payment_method" placeholder="Cash, GCash, Maya, Bank, Card, etc.">
+    </label>
+    <label>Price
+      <input name="price" type="number" step="0.01" min="0.01" placeholder="0.00" data-price required>
+    </label>
+    <label>Quantity
+      <input name="quantity" type="number" min="1" value="1" data-quantity required>
+    </label>
+    <label>Total Amount
+      <input name="amount" type="number" step="0.01" min="0.01" placeholder="0.00" data-total required readonly>
+    </label>
+    <label>Reference No.
+      <input name="reference_no" placeholder="Optional">
+    </label>
+    <div class="payment-actions">
+      <button class="small primary" name="action_type" value="Completed">Save as Paid</button>
+      <button class="small pending" name="action_type" value="Pending">Add Pending Bill</button>
+    </div>
+  </form>
+</section>
+
+{% if selected %}
+<section class="card selected-payment" id="selected-payment">
+  <div class="card-head">
+    <h2>Selected Payment Details</h2>
+    <div class="export-actions">
+      <a class="small primary" href="{{ url_for('payment_receipt', transaction_id=selected.id) }}" target="_blank">Print Receipt</a>
+      <a class="small ghost-action" href="{{ url_for('payment_receipt_pdf', transaction_id=selected.id) }}">Receipt PDF</a>
+      <a class="small ghost-action" href="{{ url_for('payment_receipt_excel', transaction_id=selected.id) }}">Receipt Excel</a>
+    </div>
+  </div>
+  <div class="payment-summary-grid">
+    <div><span>Customer</span><b>{{ selected.customer_name }}</b></div>
+    <div><span>Product / Service</span><b>{{ selected.paid_for or 'Payment' }}</b></div>
+    <div><span>Payment Type</span><b>{{ selected.payment_method }}</b></div>
+    <div><span>Quantity</span><b>{{ selected.items_count }}</b></div>
+    <div><span>Amount</span><b>{{ selected.amount|money }}</b></div>
+    <div><span>Status</span><b>{{ selected.status }}</b></div>
+  </div>
+</section>
+{% endif %}
+
+<section class="grid-two payment-lists">
+  <article class="card data-card">
+    <div class="card-head"><h2>Pending Bills</h2></div>
+    <table>
+      <thead>
+        <tr><th>Product / Service</th><th>Customer</th><th>Qty</th><th>Amount</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for bill in pending_bills %}
+          <tr class="clickable-row" onclick="location.href='{{ url_for('payment', selected=bill.id) }}#selected-payment'">
+            <td>{{ bill.paid_for or bill.reference_no }}</td>
+            <td>{{ bill.customer_name }}</td>
+            <td>{{ bill.items_count }}</td>
+            <td>{{ bill.amount|money }}</td>
+            <td><span class="status pending-status">{{ bill.status }}</span></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="muted">No pending bills yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+
+  <article class="card data-card">
+    <div class="card-head"><h2>Recent Paid Payments</h2></div>
+    <table>
+      <thead>
+        <tr><th>Product / Service</th><th>Customer</th><th>Type</th><th>Qty</th><th>Amount</th></tr>
+      </thead>
+      <tbody>
+        {% for t in transactions[:8] %}
+          <tr class="clickable-row" onclick="location.href='{{ url_for('payment', selected=t.id) }}#selected-payment'">
+            <td>{{ t.paid_for or t.reference_no }}</td>
+            <td>{{ t.customer_name }}</td>
+            <td>{{ t.payment_method }}</td>
+            <td>{{ t.items_count }}</td>
+            <td>{{ t.amount|money }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="muted">No paid payments yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block subtitle %}Business profile, account security, preferences, and backup.{% endblock %}
+{% block content %}
+<section class="settings-grid">
+  <form class="card form-card" method="post"><input type="hidden" name="action" value="business"><h2>Business Profile</h2>
+    {% for key,label in [('business_name','Business Name'),('owner_name','Owner Name'),('contact_number','Contact Number'),('email_address','Email Address'),('store_address','Store Address')] %}
+      <label>{{ label }}<input name="{{ key }}" value="{{ settings.get(key,'') }}"></label>
+    {% endfor %}<button class="small primary">Save Business Profile</button></form>
+  <form class="card form-card" method="post"><input type="hidden" name="action" value="account"><h2>Account & Security</h2>
+    <label>Username<input name="username" value="{{ user.username }}"></label><label>Role<input name="role" value="{{ user.role }}"></label><label>Password<input name="password" type="password" value="••••••••"></label>
+    <button class="small primary">Update Account</button></form>
+  <form class="card form-card" method="post"><input type="hidden" name="action" value="preferences"><h2>System Preferences</h2>
+    {% for key,label in [('currency','Currency'),('date_format','Date Format'),('receipt_size','Default Receipt Size'),('low_stock_alert_level','Low Stock Alert Level'),('theme','Theme')] %}
+      <label>{{ label }}<input name="{{ key }}" value="{{ settings.get(key,'') }}"></label>
+    {% endfor %}<button class="small primary">Save Preferences</button></form>
+  <form class="card form-card" method="post"><input type="hidden" name="action" value="backup"><h2>Backup & Maintenance</h2><p>Last backup: {{ settings.get('last_backup','Never') }}</p><p>Database status: Healthy</p><p>System version: Angielu Hub Web v1.0</p><button class="small primary">Backup Now</button></form>
+</section>
+{% endblock %}

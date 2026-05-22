@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Product Management{% endblock %}
+{% block subtitle %}Manage inventory, categories, prices, and stock levels.{% endblock %}
+{% block content %}
+<section class="toolbar card">
+  <form method="get" class="toolbar-form">
+    <input name="q" value="{{ query }}" placeholder="Search product, SKU, category...">
+    <select name="category">
+      <option>All Categories</option>
+      {% for c in categories %}<option {{ 'selected' if selected_category == c.name }}>{{ c.name }}</option>{% endfor %}
+    </select>
+    <button class="small primary">Filter</button>
+  </form>
+  <button class="small primary" data-open="addProduct">+ Add Product</button>
+</section>
+<section class="grid-two product-layout">
+  <article class="card">
+    <div class="card-head"><h2>All Products</h2><a href="{{ url_for('export_csv', table_name='products') }}">Export CSV</a></div>
+    <table>
+      <thead><tr><th>Product</th><th>SKU</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for p in products %}
+        <tr>
+          <td><b>{{ p.icon }} {{ p.name }}</b><small>{{ p.description }}</small></td>
+          <td>{{ p.sku }}</td><td>{{ p.category_name }}</td><td>{{ p.price|money }}</td><td>{{ p.stock }} {{ p.unit }}</td>
+          <td><span class="status">{{ 'Low Stock' if p.stock <= p.reorder_level else p.status }}</span></td>
+          <td><button class="icon-btn" data-open="editProduct{{ p.id }}">Edit</button></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </article>
+  <aside class="stack">
+    <article class="card">
+      <div class="card-head"><h2>Categories</h2></div>
+      {% for c in categories %}<div class="category-row"><span style="background: {{ c.color }}">{{ c.icon }}</span><b>{{ c.name }}</b></div>{% endfor %}
+      <form class="inline-form" action="{{ url_for('add_category') }}" method="post"><input name="name" placeholder="New category"><button class="small">+</button></form>
+    </article>
+    <article class="card">
+      <div class="card-head"><h2>Product Form</h2></div>
+      <p class="muted">Use + Add Product or Edit to save directly to SQLite.</p>
+    </article>
+  </aside>
+</section>
+{% include "product_modal.html" %}
+{% for product in products %}{% include "product_modal.html" with context %}{% endfor %}
+{% endblock %}

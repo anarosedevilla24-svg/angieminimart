@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Receipt - {{ transaction.transaction_no }}</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #f4eee9;
+      color: #171717;
+      font-family: "Courier New", Courier, monospace;
+      padding: 24px;
+    }
+
+    .receipt-shell {
+      width: min(420px, 100%);
+    }
+
+    .receipt-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .receipt-actions button,
+    .receipt-actions a {
+      flex: 1;
+      height: 38px;
+      border: 1px solid #171717;
+      border-radius: 6px;
+      background: #fff;
+      color: #171717;
+      font: 700 12px "Courier New", Courier, monospace;
+      text-align: center;
+      text-decoration: none;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .receipt-paper {
+      background: #fff;
+      padding: 22px;
+      box-shadow: 0 22px 60px rgba(0, 0, 0, .16);
+      border: 1px solid #ddd;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 1px;
+    }
+
+    p {
+      margin: 4px 0;
+      font-size: 12px;
+    }
+
+    .line {
+      border-top: 1px dashed #171717;
+      margin: 14px 0;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 7px 0;
+      font-size: 13px;
+    }
+
+    .row span:last-child {
+      text-align: right;
+      font-weight: 700;
+    }
+
+    .item-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      font-size: 13px;
+      margin: 8px 0;
+    }
+
+    .muted {
+      color: #555;
+      font-size: 12px;
+    }
+
+    .total {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+      }
+
+      .receipt-actions {
+        display: none;
+      }
+
+      .receipt-paper {
+        width: 80mm;
+        box-shadow: none;
+        border: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  {% set unit_price = (transaction.amount / transaction.items_count) if transaction.items_count else transaction.amount %}
+  <main class="receipt-shell">
+    <div class="receipt-actions">
+      <button onclick="window.print()">Print Receipt</button>
+      <a href="{{ url_for('payment_receipt_pdf', transaction_id=transaction.id) }}">PDF</a>
+      <a href="{{ url_for('payment_receipt_excel', transaction_id=transaction.id) }}">Excel</a>
+    </div>
+
+    <section class="receipt-paper">
+      <div class="center">
+        <h1>ANGIELU HUB</h1>
+        <p>MAIN BRANCH</p>
+        <p>OFFICIAL RECEIPT</p>
+      </div>
+
+      <div class="line"></div>
+
+      <div class="row"><span>Receipt No</span><span>{{ transaction.transaction_no }}</span></div>
+      <div class="row"><span>Date</span><span>{{ transaction.created_at|dt }}</span></div>
+      <div class="row"><span>Customer</span><span>{{ transaction.customer_name }}</span></div>
+      <div class="row"><span>Payment</span><span>{{ transaction.payment_method }}</span></div>
+      <div class="row"><span>Reference</span><span>{{ transaction.reference_no or 'N/A' }}</span></div>
+      <div class="row"><span>Status</span><span>{{ transaction.status }}</span></div>
+
+      <div class="line"></div>
+
+      <div class="item-row">
+        <div>
+          <strong>{{ transaction.paid_for or 'Payment' }}</strong>
+          <div class="muted">Qty {{ transaction.items_count }} x {{ unit_price|money }}</div>
+        </div>
+        <strong>{{ transaction.amount|money }}</strong>
+      </div>
+
+      <div class="line"></div>
+
+      <div class="row total"><span>TOTAL</span><span>{{ transaction.amount|money }}</span></div>
+
+      <div class="line"></div>
+
+      <div class="center">
+        <p>Thank you for your payment.</p>
+        <p>Please keep this receipt.</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

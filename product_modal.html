@@ -1,0 +1,23 @@
+{% set modal_product = product if product is defined else none %}
+{% set modal_id = 'editProduct' ~ modal_product.id if modal_product else 'addProduct' %}
+<dialog id="{{ modal_id }}" class="modal">
+  <form method="post" action="{{ url_for('update_product', product_id=modal_product.id) if modal_product else url_for('add_product') }}">
+    <div class="modal-head"><h2>{{ 'Edit Product' if modal_product else 'Add New Product' }}</h2><button type="button" data-close>×</button></div>
+    <div class="form-grid">
+      <label>Product Name *<input name="name" value="{{ modal_product.name if modal_product else '' }}" required></label>
+      <label>SKU *<input name="sku" value="{{ modal_product.sku if modal_product else '' }}" required></label>
+      <label>Category<select name="category">{% for c in categories %}<option {{ 'selected' if modal_product and modal_product.category_name == c.name }}>{{ c.name }}</option>{% endfor %}</select></label>
+      <label>Status<select name="status">{% for s in ['Active','Draft','Archived'] %}<option {{ 'selected' if modal_product and modal_product.status == s }}>{{ s }}</option>{% endfor %}</select></label>
+      <label>Price<input name="price" type="number" step="0.01" value="{{ modal_product.price if modal_product else 0 }}"></label>
+      <label>Stock<input name="stock" type="number" value="{{ modal_product.stock if modal_product else 0 }}"></label>
+      <label>Unit<select name="unit">{% for u in ['pcs','packs','reams','bottles','sets','boxes'] %}<option {{ 'selected' if modal_product and modal_product.unit == u }}>{{ u }}</option>{% endfor %}</select></label>
+      <label>Reorder Level<input name="reorder_level" type="number" value="{{ modal_product.reorder_level if modal_product else 20 }}"></label>
+      <label>Icon<input name="icon" value="{{ modal_product.icon if modal_product else '📦' }}"></label>
+    </div>
+    <label>Description<textarea name="description">{{ modal_product.description if modal_product else '' }}</textarea></label>
+    <footer><button type="button" class="small" data-close>Cancel</button><button class="small primary">Save Product</button></footer>
+  </form>
+  {% if modal_product %}
+    <form class="archive-form" method="post" action="{{ url_for('archive_product', product_id=modal_product.id) }}"><button>Archive Product</button></form>
+  {% endif %}
+</dialog>

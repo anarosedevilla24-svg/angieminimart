@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}History{% endblock %}
+{% block subtitle %}Review saved payments, references, and receipt details.{% endblock %}
+{% block content %}
+<section class="grid-two">
+  <article class="card">
+    <div class="card-head"><h2>Payment History</h2><div class="export-actions"><a href="{{ url_for('payment_export_pdf') }}">PDF</a><a href="{{ url_for('payment_export_excel') }}">Excel</a></div></div>
+    <table><thead><tr><th>Paid For</th><th>Customer</th><th>Method</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+    {% for t in transactions %}<tr onclick="location.href='{{ url_for('history', selected=t.id) }}'"><td>{{ t.paid_for or t.transaction_no }}</td><td>{{ t.customer_name }}</td><td>{{ t.payment_method }}</td><td>{{ t.amount|money }}</td><td><span class="status">{{ t.status }}</span></td></tr>{% endfor %}
+    </tbody></table>
+  </article>
+  <article class="card receipt">
+    <div class="card-head"><h2>Receipt Preview</h2>{% if selected %}<div class="export-actions"><a href="{{ url_for('payment_receipt', transaction_id=selected.id) }}" target="_blank">Print</a><a href="{{ url_for('payment_receipt_pdf', transaction_id=selected.id) }}">PDF</a><a href="{{ url_for('payment_receipt_excel', transaction_id=selected.id) }}">Excel</a></div>{% endif %}</div>
+    {% if selected %}
+      <h3>ANGIELU HUB MAIN BRANCH</h3><p>OFFICIAL RECEIPT</p>
+      <div class="receipt-lines"><span>Receipt No.</span><b>{{ selected.transaction_no }}</b><span>Date</span><b>{{ selected.created_at|dt }}</b><span>Customer</span><b>{{ selected.customer_name }}</b><span>Paid For</span><b>{{ selected.paid_for or 'N/A' }}</b><span>Payment</span><b>{{ selected.payment_method }}</b></div>
+      <table><tbody>{% for item in items %}<tr><td>{{ item.product_name }} x{{ item.quantity }}</td><td>{{ item.line_total|money }}</td></tr>{% endfor %}</tbody></table>
+      <strong class="receipt-total">TOTAL: {{ selected.amount|money }}</strong>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}

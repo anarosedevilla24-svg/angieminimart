@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Angie's Mini Mart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="app-body">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">A</div>
+      <div>
+        <strong>Angielu Hub</strong>
+        <span>Mini Mart System</span>
+      </div>
+    </div>
+    <nav>
+      <a class="{{ 'active' if page == 'dashboard' }}" href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a class="{{ 'active' if page == 'payment' }}" href="{{ url_for('payment') }}">Payment</a>
+      <a class="{{ 'active' if page == 'history' }}" href="{{ url_for('history') }}">History</a>
+      <a class="{{ 'active' if page == 'report' }}" href="{{ url_for('report') }}">Report</a>
+    </nav>
+    <form action="{{ url_for('logout') }}" method="post">
+      <button class="logout" type="submit">Logout</button>
+    </form>
+  </aside>
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <h1>{% block title %}Dashboard{% endblock %}</h1>
+        <p>{% block subtitle %}Here's what's happening with your business today.{% endblock %}</p>
+      </div>
+      <div class="top-actions">
+        <input type="search" placeholder="Search payments, history, reports...">
+        <div class="avatar">{{ user.username[:1]|upper if user.username else 'A' }}</div>
+      </div>
+    </header>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-wrap">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
